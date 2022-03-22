@@ -2,9 +2,10 @@ import datetime
 from abc import abstractmethod, ABC
 from typing import Mapping, Union, List
 
-from utils.window_utils import generate_time_windows
-from utils.graphs_util import create_graph_as_dict
 import pandas as pd
+
+from core.utils.graphs_util import create_graph_as_dict
+from core.utils.window_utils import generate_time_windows
 
 
 class Dataset(ABC):

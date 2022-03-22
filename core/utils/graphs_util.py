@@ -9,7 +9,7 @@ def normalize_weights(graph: dict) -> dict:
 
     for start, edges in graph.items():
         for end, weight in edges.items():
-            graph[start][end]/=sum
+            graph[start][end] /= sum
 
     return graph
 
@@ -57,3 +57,11 @@ def create_networkx_graph(event_ids: list, include_last: bool):
 
 if __name__ == '__main__':
     print(create_graph_as_dict("A,B,C,B,C,A,D".split(","), False))
+
+    # with open('D:\\finki\\log2graph\\core\\test_graph.txt', 'r') as f:
+    #     events = f.readline()
+
+    # print(create_graph_as_dict(events.split(","), False))
+
+    # with open('D:\\finki\\log2graph\\core\\generated_graph.txt', 'w') as f:
+    #     events = f.write(str(create_graph_as_dict(events.split(","), False)))}
