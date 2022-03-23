@@ -9,7 +9,7 @@ def normalize_weights(graph: dict) -> dict:
 
     for start, edges in graph.items():
         for end, weight in edges.items():
-            graph[start][end]/=sum
+            graph[start][end] /= sum
 
     return graph
 
@@ -41,6 +41,27 @@ def create_graph_as_dict(event_ids: list, include_last: bool) -> dict:
     return normalize_weights(graph_dict)
 
 
+def create_position_embeddings(event_ids: list, include_last: bool) -> dict:
+    """
+    Method that creates the position embeddings for the event_ids. The position embeddings represent numerical information
+    for the order of occurrence of the event IDs in a log sequence (session). The last event_id detected in the session
+    has embedding of 1 and the first event_id in the sequence has the embedding N where N is the count of unique event
+    IDs in the sequence
+    :param event_ids: List of the event ids extracted from the logs that occurred in a given window/session
+    :param include_last: A bool value that represents whether the last event ID should be included in the graph generation
+    :return: dictionary where the keys are the event IDs and the values are the corresponding position embeddings for
+    the key
+    """
+    end = len(event_ids) if include_last else len(event_ids) - 1
+    embeddings = {event_id: 0 for event_id in event_ids[:end]}
+    counter = 1
+    for event_id in reversed(event_ids[:end]):
+        if embeddings[event_id] == 0:
+            embeddings[event_id] = counter
+        counter += 1
+    return embeddings
+
+
 def create_networkx_graph(event_ids: list, include_last: bool):
     graph_dict = create_graph_as_dict(event_ids, include_last)
     nodes = set()
@@ -53,7 +74,9 @@ def create_networkx_graph(event_ids: list, include_last: bool):
             edges_list.append((start, end, {"weight": weight}))
     graph.add_nodes_from(list(nodes))
     graph.add_edges_from(edges_list)
+    return graph
 
 
 if __name__ == '__main__':
     print(create_graph_as_dict("A,B,C,B,C,A,D".split(","), False))
+    print(create_position_embeddings("A,B,C,B,C,A,D".split(","), False))
