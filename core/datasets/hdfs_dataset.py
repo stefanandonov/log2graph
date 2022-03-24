@@ -1,4 +1,5 @@
 import datetime
+import time
 from os import mkdir
 from os.path import exists
 from os.path import join
@@ -6,7 +7,7 @@ from os.path import join
 import gdown
 import pandas as pd
 
-from core.datasets.dataset import Dataset
+from datasets.dataset import Dataset
 
 
 class HDFSDataset(Dataset):
@@ -14,10 +15,11 @@ class HDFSDataset(Dataset):
         Dataset.__init__(self)
 
     def load_logs(self):
-        output_path = "D:\\finki\\log2graph\\core\\data\\hdfs\\log.csv"
-        url = 'https://drive.google.com/uc?export=download&id=1CPoIS5-ICN_lXUKv-adcY977A_AN4B3u'
+        output_path = "../data/hdfs/logs.csv"
+        # https://drive.google.com/file/d/1CPoIS5-ICN_lXUKv-adcY977A_AN4B3u/view?usp=sharing
+        url = 'https://drive.google.com/uc?id=1CPoIS5-ICN_lXUKv-adcY977A_AN4B3u'
         if not exists(output_path):
-            mkdir(join("D:\\finki\\log2graph\\core\\data\\hdfs"))
+            mkdir(join("../data/hdfs"))
             gdown.download(url, output_path, quiet=False)
 
         self.logs = pd.read_csv(output_path)
@@ -36,8 +38,8 @@ class HDFSDataset(Dataset):
         print(len(self.logs))
 
     def load_event_templates(self):
-        output_path = 'D:\\finki\\log2graph\\core\\data\\hdfs\\templates.csv'
-        url = 'https://drive.google.com/uc?export=download&id=1v9t126uUxcfKKlGihw5OaxWurdKZcK70'
+        output_path = '../data/hdfs/templates.csv'
+        url = 'https://drive.google.com/uc?id=1v9t126uUxcfKKlGihw5OaxWurdKZcK70'
         if not exists(output_path):
             gdown.download(url, output_path, quiet=False)
 
@@ -53,4 +55,7 @@ if __name__ == '__main__':
     dataset = HDFSDataset()
     dataset.load_logs()
     dataset.load_event_templates()
+    start = time.time()
     print(dataset.create_graphs("tumbling", 600000, 0, 1))
+    end = time.time()
+    print (end-start)

@@ -4,8 +4,8 @@ from typing import Mapping, Union, List
 
 import pandas as pd
 
-from core.utils.graphs_util import create_graph_as_dict
-from core.utils.window_utils import generate_time_windows
+from utils.graphs_util import create_graph_as_dict
+from utils.window_utils import generate_time_windows
 
 
 class Dataset(ABC):

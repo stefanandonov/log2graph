@@ -4,7 +4,7 @@ from os.path import exists
 import gdown
 import pandas as pd
 
-from core.datasets.dataset import Dataset
+from datasets.dataset import Dataset
 
 
 class NovaDataset(Dataset):
