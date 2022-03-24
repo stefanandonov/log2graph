@@ -76,6 +76,8 @@ def create_networkx_graph(event_ids: list, include_last: bool):
     graph.add_edges_from(edges_list)
     return graph
 
+    return graph
+
 
 if __name__ == '__main__':
     print(create_graph_as_dict("A,B,C,B,C,A,D".split(","), False)

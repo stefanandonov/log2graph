@@ -70,10 +70,16 @@ class Dataset(ABC):
 
         result = []
         for index, row in windows_df.iterrows():
+            # Hack fix, think of a better one later
+            if pd.isnull(row['event_ids']):
+                r = []
+            else:
+                r = row['event_ids'].split(',')
+
             result.append({
                 'start': row['start'],
                 'end': row['end'],
-                'graph_dict': create_graph_as_dict(event_ids=row['event_ids'].split(','), include_last=include_last)
+                'graph_dict': create_graph_as_dict(event_ids=r, include_last=include_last)
             })
 
         return result
