@@ -1,3 +1,4 @@
+import time
 from os import makedirs
 from os.path import exists
 
@@ -7,33 +8,34 @@ import pandas as pd
 from datasets.dataset import Dataset
 from utils import Drain
 
+
 class BGLDataset(Dataset):
     def __init__(self):
         Dataset.__init__(self)
 
     def load_logs(self):
         output_file = '../data/bgl/unparsed/logs.log'
-        url = 'https://drive.google.com/file/d/1CtUwkOA_flGk7IaHQIL_bPalURdKMzTR/view?usp=sharing'
+        # 'https://drive.google.com/uc?id=1CtUwkOA_flGk7IaHQIL_bPalURdKMzTR'
+        url = 'https://drive.google.com/uc?id=1DBEppXnGACcvEKJ018mUTRREMILyYPCV'
         if not exists('../data/bgl/unparsed'):
             makedirs('../data/bgl/unparsed')
-            gdown.download(url, output_file, quiet=False, fuzzy=True)
-        
+            gdown.download(url, output_file, quiet=False)
+
         # Replace the commas with semicolons
         # commas cause problems with DRAIN and writing to csv 
         log_file = '../data/bgl/unparsed/processed_logs.log'
         if not exists('../data/bgl/'):
             makedirs('../data/bgl/')
-        
-        lf = open(log_file, 'a') 
-    
+
+        lf = open(log_file, 'a')
+
         with open(output_file) as of:
             for line in of:
                 lf.write(line.replace(',', ';'))
-        
+
         lf.close()
 
-
-        # Parse the logs with DRAIN 
+        # Parse the logs with DRAIN
         log_file = 'processed_logs.log'
         input_dir = '../data/bgl/unparsed/'
         output_dir = '../data/bgl/'
@@ -51,7 +53,6 @@ class BGLDataset(Dataset):
         print(self.logs.head())
         print(len(self.logs))
 
-
     def load_event_templates(self):
         """
         Drain has already extracted the event templates, do nothing.
@@ -63,3 +64,16 @@ class BGLDataset(Dataset):
         BGL already has event ids, do nothing.
         """
         pass
+
+if __name__ == '__main__':
+    dataset = BGLDataset()
+    start = time.time()
+    dataset.load_logs()
+    end = time.time()
+    print (f"{end-start} seconds for loading the dataset")
+    dataset.load_event_templates()
+
+    start = time.time()
+    print(dataset.create_graphs("tumbling", 3600000, 0, 1)) # one hour time window
+    end = time.time()
+    print(f"{end-start} seconds for creation of the time windows")
