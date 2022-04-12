@@ -4,18 +4,18 @@ from os.path import exists
 import gdown
 import pandas as pd
 
-from datasets.dataset import Dataset
+from log_datasets.dataset import Dataset
 
 
 class NovaDataset(Dataset):
-    def __init__(self):
-        Dataset.__init__(self)
+    def __init__(self, data_folder_path="../data"):
+        Dataset.__init__(self, data_folder_path)
 
     def load_logs(self):
-        output_path = '../data/nova/logs.csv'
+        output_path = f'{self.data_folder_path}/nova/logs.csv'
         url = 'https://drive.google.com/uc?id=19BIXVfWmyGcGUG9eVLOIFLldaL4dxKjb'
         if not exists(output_path):
-            mkdir("../data/nova")
+            mkdir(f"{self.data_folder_path}/nova")
             gdown.download(url, output_path, quiet=False)
 
         self.logs = pd.read_csv(output_path)
@@ -30,7 +30,7 @@ class NovaDataset(Dataset):
         print(len(self.logs))
 
     def load_event_templates(self):
-        output_path = '../data/nova/event_templates.csv'
+        output_path = f'{self.data_folder_path}/nova/event_templates.csv'
         url = 'https://drive.google.com/uc?id=1AhImrZ2wLProAHzmAp_M9C3dGnfOZWRo'
         if not exists(output_path):
             gdown.download(url, output_path, quiet=False)

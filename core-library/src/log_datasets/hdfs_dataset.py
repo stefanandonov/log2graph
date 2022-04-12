@@ -8,13 +8,13 @@ from os.path import join
 import gdown
 import pandas as pd
 
-from datasets.dataset import Dataset
+from log_datasets.dataset import Dataset
 from utils.Drain import LogParser
 
 
 class HDFSDataset(Dataset):
-    def __init__(self):
-        Dataset.__init__(self)
+    def __init__(self, data_folder_path = "../data"):
+        Dataset.__init__(self, data_folder_path)
 
     @staticmethod
     def __find(params):
@@ -27,15 +27,15 @@ class HDFSDataset(Dataset):
     def load_logs(self):
 
         # download raw logs
-        output_path = "../data/hdfs/HDFS.log"
+        output_path = f"{self.data_folder_path}/hdfs/HDFS.log"
         url = 'https://drive.google.com/uc?id=1yVWq065qjyKM7TcAF1aIkfc5jVyPPcQM'
         if not exists(output_path):
-            # mkdir(join("../data/hdfs"))
+            mkdir(join(f"{self.data_folder_path}/hdfs"))
             gdown.download(url, output_path, quiet=False)
 
-        if not exists("../data/hdfs/HDFS.log_structured.csv"):
-            input_dir = "../data/hdfs/"
-            output_dir = "../data/hdfs/"
+        if not exists(f"{self.data_folder_path}/hdfs/HDFS.log_structured.csv"):
+            input_dir = f"{self.data_folder_path}/hdfs/"
+            output_dir = f"{self.data_folder_path}/hdfs/"
             log_file = 'HDFS.log'
             log_format = "<Date> <Time> <Pid> <Level> <Component>: <Content>"
 
@@ -51,7 +51,7 @@ class HDFSDataset(Dataset):
             parser = LogParser(log_format, indir=input_dir, outdir=output_dir, depth=depth, st=st, rex=regex)
             parser.parse(log_file)
 
-        self.logs = pd.read_csv("../data/hdfs/HDFS.log_structured.csv")
+        self.logs = pd.read_csv(f"{self.data_folder_path}/hdfs/HDFS.log_structured.csv")
         self.logs = self.logs.iloc[1:, :]
         dates = {81109: "2008-11-9", 81110: "2008-11-10", 81111: "2008-11-11"}
         self.logs['Date'] = self.logs['Date'].apply(lambda x: dates[x])
@@ -67,7 +67,7 @@ class HDFSDataset(Dataset):
         self.logs.rename(columns={'timestamp': 'timestamp', 'EventId': 'event_id', 'block_id': 'session_id'}, inplace=True)
 
     def load_event_templates(self):
-        output_path = '../data/hdfs/HDFS.log_templates.csv'
+        output_path = f'{self.data_folder_path}/hdfs/HDFS.log_templates.csv'
         self.templates = pd.read_csv(output_path)
 
     def assign_event_id_to_logs(self):

@@ -1,0 +1,65 @@
+@page "/experiments"
+@using web.Models
+@using System.Text.Json
+@inject HttpClient Http
+@inject NavigationManager _navigationManager
+<h3>List of created experiments</h3>
+
+<MudTable Items="_experiments">
+    <HeaderContent>
+        <MudTh>ID</MudTh>
+        <MudTh>Name</MudTh>
+        <MudTh>Dataset</MudTh>
+        <MudTh>Window type</MudTh>
+        <MudTh>Window size</MudTh>
+        <MudTh>Window slide</MudTh>
+        <MudTh>Include last log?</MudTh>
+        <MudTh>Test ID</MudTh>
+        <MudTh>Created at</MudTh>
+        <MudTh>Last modified at</MudTh>
+        <MudTh></MudTh>
+        <MudTh></MudTh>
+        @* TODO add more empty headers for the buttons *@
+    </HeaderContent>
+    <RowTemplate>
+        @* <MudTd><MudButton Disabled="@(!context.PaymentTypes.Any())" Variant="Variant.Outlined" Size="Size.Small" OnClick="@(() => ShowBtnPress(context))">@((context.Display == true) ? "Скриј" : "Прикажи") плаќања</MudButton></MudTd> *@
+        <MudTd DataLabel="ID">@context.id</MudTd>
+        <MudTd DataLabel="Name">@context.name</MudTd>
+        <MudTd DataLabel="Dataset">@context.dataset</MudTd>
+        <MudTd DataLabel="Window type">@context.window_type</MudTd>
+        <MudTd DataLabel="Window size">@context.size</MudTd>
+        <MudTd DataLabel="Window slide">@context.slide</MudTd>
+        <MudTd DataLabel="Include last log?">@context.include_last_event</MudTd>
+        <MudTd DataLabel="Test ID">@context.test_id</MudTd>
+        <MudTd DataLabel="Created at">@context.created_at</MudTd>
+        <MudTd DataLabel="Last modified at">@context.last_modified_at</MudTd>
+        <MudTd>
+            <MudButton Color="Color.Info" OnClick="() => RouteToWindowsList(context.id)">Show windows</MudButton>
+        </MudTd>
+        <MudTd>
+            <MudButton Color="Color.Error" OnClick="() => DeleteExperiment(context.id)">Delete</MudButton>
+        </MudTd>
+        
+    </RowTemplate>
+</MudTable>
+
+@code {
+    List<ExperimentsDto>? _experiments = new();
+
+
+    private void DeleteExperiment(int contextId)
+    {
+        throw new NotImplementedException();
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        _experiments = await Http.GetFromJsonAsync<List<ExperimentsDto>>("/experiments");
+    }
+
+    private void RouteToWindowsList(int experimentId)
+    {
+        _navigationManager.NavigateTo("/experiment/windows/" + Convert.ToInt32(experimentId), true);
+    }
+
+}

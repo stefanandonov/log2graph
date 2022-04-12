@@ -1,0 +1,94 @@
+@page "/experiment/add"
+@using web.Models
+@using System.Text.Json
+@using System.Text
+@inject HttpClient Http
+<h3>Add new experiment</h3>
+
+<MudPaper Class="border-solid border-2 mud-border-primary rounded pa-4">
+    <MudForm>
+        <MudTextField T="string" Label="Name of the experiment" @bind-Value="_experiment.name"></MudTextField>
+        <MudSelect @bind-Value="_experiment.dataset" Label="Dataset">
+            @foreach (string dataset in datasets)
+            {
+                <MudSelectItem Value="dataset">@dataset</MudSelectItem>
+            }
+        </MudSelect>
+        <MudSelect @bind-Value="_experiment.windowType" Label="Window Type">
+            @foreach (string windowType in windowTypes)
+            {
+                <MudSelectItem Value="windowType">@windowType</MudSelectItem>
+            }
+        </MudSelect>
+
+        @if (!_experiment.windowType.Equals("session"))
+        {
+            <MudSlider @bind-Value="_experiment.size" Min="1000" Max="3600000" Step="500" Color="Color.Success">
+                Window size: @_experiment.size milliseconds (@GetDetailedTime(_experiment.size))
+            </MudSlider>
+
+            @if (_experiment.windowType.Equals("sliding"))
+            {
+                <MudSlider @bind-Value="_experiment.slide" Min="1000" Max="3600000" Step="500" Color="Color.Success">
+                    Slide size: @_experiment.slide milliseconds  (@GetDetailedTime(_experiment.slide))
+                </MudSlider>
+            }
+
+            @if (_experiment.dataset.Equals("NOVA"))
+            {
+                <MudNumericField @bind-Value="_experiment.testId" Label="Test ID"></MudNumericField>
+            }
+        }
+
+        <MudCheckBox @bind-Checked="_experiment.includeLastEvent" Label="Include the last event in the window?"></MudCheckBox>
+        <br/>
+        <MudButton Variant="Variant.Filled" Color="Color.Success" OnClick="CreateExperiment">Start experiment</MudButton>
+
+    </MudForm>
+</MudPaper>
+
+
+@code {
+
+    Experiment _experiment = new Experiment();
+
+    List<String> datasets = new List<string>();
+
+    List<String> windowTypes = new List<string>();
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        datasets.Add("HDFS");
+        datasets.Add("NOVA");
+        datasets.Add("BGL");
+
+        windowTypes.Add("session");
+        windowTypes.Add("tumbling");
+        windowTypes.Add("sliding");
+    }
+
+    private string GetDetailedTime(long time)
+    {
+        long hours = time / 1000 / 60 / 60;
+        time -= hours * 60 * 60 * 1000;
+        long minutes = time / 1000 / 60;
+        time -= minutes * 1000 * 60;
+        long seconds = time / 1000;
+        time -= seconds * 1000;
+        long ms = time;
+
+        return $"{hours} hours {minutes} minutes {seconds} seconds {ms} milliseconds";
+    }
+
+
+    private async Task CreateExperiment()
+    {
+        // var request = new HttpRequestMessage(HttpMethod.Post, "/experiment/create");
+        // request.Content = new StringContent(JsonSerializer.Serialize(_experiment), Encoding.UTF8, "application/json");
+        // request.Headers.Add("Access-Control-Allow-Origin", "*");
+        // using var response = await Http.SendAsync(request);
+        HttpResponseMessage response = await Http.PostAsJsonAsync("/experiment/create", _experiment);
+    }
+
+}

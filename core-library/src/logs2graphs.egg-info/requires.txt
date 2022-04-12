@@ -1,0 +1,10 @@
+gdown
+networkx
+numpy
+pandas
+python-dateutil
+regex
+requests
+
+[:python_version < "3.8"]
+importlib-metadata

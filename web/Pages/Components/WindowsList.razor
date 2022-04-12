@@ -1,0 +1,59 @@
+@page "/experiment/windows/{experimentId:int}"
+@inject HttpClient Http
+@inject NavigationManager _navigationManager
+@using web.Models
+
+<h3>List of windows for experiment with ID: @experimentId</h3>
+
+@* TODO sort the windows *@
+@if (_windows!.windows.Any())
+{
+    <MudTable Items="_windows?.windows">
+        <HeaderContent>
+            @if (_windows!.type.Equals("session"))
+            {
+                <MudTh>Session</MudTh>
+            }
+            else
+            {
+                <MudTh>Time window (start,end)</MudTh>
+            }
+            <MudTh></MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd>
+                @context
+            </MudTd>
+            <MudTd>
+                <MudButton Variant="Variant.Filled" Color="Color.Info" OnClick="() => RouteToWindowVisualization(context)">Show visualization</MudButton>
+            </MudTd>
+        </RowTemplate>
+    </MudTable>
+}
+else
+{
+    <h4>
+        There are no windows generated for the experiment with ID: @experimentId
+    </h4>
+}
+
+
+@code {
+
+    Windows? _windows = new();
+    [Parameter]
+    public int experimentId { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+
+        _windows = await Http.GetFromJsonAsync<Windows>("/experiment/windows?experimentId=" + Convert.ToInt32(experimentId));
+
+    }
+
+    private void RouteToWindowVisualization(string window)
+    {
+        _navigationManager.NavigateTo($"/graph_visualization/{experimentId}/{window}/display");
+    }
+
+}

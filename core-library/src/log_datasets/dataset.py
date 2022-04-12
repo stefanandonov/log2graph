@@ -18,9 +18,10 @@ class Dataset(ABC):
     - event_id (string)
     """
 
-    def __init__(self):
+    def __init__(self, data_folder_path="../data"):
         self.logs = pd.DataFrame()
         self.templates = pd.DataFrame()
+        self.data_folder_path = data_folder_path
 
     @abstractmethod
     def load_logs(self):
@@ -47,6 +48,11 @@ class Dataset(ABC):
         :return:
         """
         pass
+
+    def initialize_dataset(self):
+        self.load_logs()
+        self.load_event_templates()
+        self.assign_event_id_to_logs()
 
     def create_graphs(self, window_type, window_size, window_slide, test_id, include_last=True) \
             -> List[Mapping[str, Union[datetime.datetime, Mapping[str, Mapping[str, int]]]]]:
@@ -123,7 +129,3 @@ def get_events_ids_for_window(logs_df, window):
                              (logs_df['timestamp'] >= window['start'])
                              & (logs_df['timestamp'] < window['end'])
                              ]['event_id']))
-
-
-def get_event_ids_for_session(logs_df, session):
-    return ",".join(list(logs_df[logs_df['session_id'] == session['session_id']]))

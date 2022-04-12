@@ -1,0 +1,53 @@
+@page "/graph_visualization/{experimentId:int}/{window}/display"
+@using web.Models
+@inject HttpClient Http
+<h3>Window Visualization</h3>
+
+<h4>@_window.graph_dict</h4>
+
+<style>
+
+    #mynetwork {
+        height: 900px!important;
+    }
+    canvas {
+        height: 900px!important;
+    }
+</style>
+
+<iframe style="height: 900px!important;" srcdoc="@_window.html_content"></iframe>
+
+@* <iframe src="../../api/experiments/@experimentId/@window/vis.html"></iframe> *@
+@* <iframe srcdoc="@_window.content"></iframe> *@
+
+@* <span>@_window.content</span> *@
+
+@code {
+
+    [Parameter]
+    public int experimentId { get; set; }
+
+    [Parameter]
+    public string window { get; set; }
+
+    Window? _window = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        _window = await Http.GetFromJsonAsync<Window>($"/experiment/window?experimentId={experimentId}&window={window}");
+    // WindowRequest windowRequest = new WindowRequest
+    // {
+    //     experimentId = experimentId,
+    //     window = window
+    // };
+    // var windowRequestJson = JsonSerializer.Serialize(windowRequest);
+    // var responseMessage = await Http.SendAsync(new HttpRequestMessage
+    // {
+    //     Method = HttpMethod.Get, RequestUri = new Uri("/experiment/window"), Content = new StringContent(windowRequestJson, Encoding.UTF8, MediaTypeNames.Application.Json)
+    // });
+    //
+    // var responseContent = await responseMessage.Content.ReadAsStringAsync();
+    // _window = JsonSerializer.Deserialize<Window>(responseContent);
+    }
+
+}
