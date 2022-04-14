@@ -8,8 +8,8 @@ from flask import Flask, request, jsonify
 from flask import current_app
 from flask_marshmallow import Marshmallow
 from flask_sqlalchemy import SQLAlchemy
+from log_datasets.datasets import NovaDataset, HDFSDataset, BGLDataset
 
-from log_datasets.nova_dataset import NovaDataset
 from pyvis.network import Network
 from utils.graphs_util import create_networkx_graph, nx2pyvis
 

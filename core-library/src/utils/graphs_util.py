@@ -146,8 +146,7 @@ def create_position_embeddings(event_ids: list, include_last: bool) -> dict:
     return embeddings
 
 
-def create_networkx_graph(event_ids: list, include_last: bool):
-    graph_dict = create_graph_as_dict(event_ids, include_last)
+def create_networkx_graph(graph_dict):
     nodes = set()
     edges_list = []
     graph = nx.DiGraph()
