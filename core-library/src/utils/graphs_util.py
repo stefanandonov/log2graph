@@ -33,8 +33,8 @@ class GraphFromTimeWindowCreator(GraphCreator, ABC):
             # Hack fix, think of a better one later
             r = [] if pd.isnull(row['event_ids']) else row['event_ids'].split(',')
             result.append({
-                'start': row['start'],
-                'end': row['end'],
+                'start': str(row['start']),
+                'end': str(row['end']),
                 'graph_dict': create_graph_as_dict(event_ids=r, include_last=self.include_last)
             })
 
