@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: logs2graphs
-Version: 0.0.1
+Version: 0.0.3
 Summary: Library for extraction of graph data from logs
 Home-page: https://github.com/pypa/sampleproject
 Author: Stefan Andonov

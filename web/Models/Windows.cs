@@ -6,4 +6,6 @@ public class Windows
 
     public string? error_message { get; set; }
     public List<String> windows { get; set; } = new();
+
+    public string dataset { get; set; } 
 }

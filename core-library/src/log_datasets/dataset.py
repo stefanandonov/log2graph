@@ -6,6 +6,8 @@ import pandas as pd
 
 from utils.graphs_util import create_graph_as_dict
 from utils.window_utils import generate_time_windows, generate_session_windows
+from utils.graphs_util import GraphCreator, GraphFromTimeWindowCreator, GraphFromSessionWindowCreator, \
+    GraphFromTumblingWindowCreator, GraphFromSlidingWindowCreator
 
 
 class Dataset(ABC):
@@ -69,63 +71,25 @@ class Dataset(ABC):
         representation of the graph as obtained from the create_graph_as_dict method.
         """
         logs = self.logs[self.logs['test_id'] == test_id] if 'test_id' in self.logs.columns else self.logs
-        if window_type == 'session':
-            return self.create_graphs_for_session_windows(logs)
-        else:
-            return self.create_graphs_for_time_windows(logs, window_type, window_size, window_slide, include_last)
-
-    def create_graphs_for_time_windows(self, logs, window_type, window_size, window_slide, include_last=True):
-        min_timestamp = logs['timestamp'].min()
-        max_timestamp = logs['timestamp'].max()
-        windows_df = generate_time_windows(window_type, window_size, window_slide, min_timestamp, max_timestamp)
-        windows_df['event_ids'] = windows_df.apply(lambda window: get_events_ids_for_window(logs, window), axis=1)
-        print(windows_df.head())
-
-        result = []
-        for index, row in windows_df.iterrows():
-            # Hack fix, think of a better one later
-            if pd.isnull(row['event_ids']):
-                r = []
-            else:
-                r = row['event_ids'].split(',')
-
-            result.append({
-                'start': row['start'],
-                'end': row['end'],
-                'graph_dict': create_graph_as_dict(event_ids=r, include_last=include_last)
-            })
-
-        return result
-
-    def create_graphs_for_session_windows(self, test_id=None, include_last=True):
-        if 'session_id' not in self.logs.columns:
+        if window_type == 'session' and "session_id" not in self.logs.columns:
             raise Exception("Session windows are not allowed for this dataset")
 
-        logs = self.logs[self.logs['test_id'] == test_id] if 'test_id' in self.logs.columns else self.logs
-        windows_df = generate_session_windows(logs)
+        if window_type == 'tumbling':
+            graph_creator = GraphFromTumblingWindowCreator(
+                logs=logs,
+                include_last=include_last,
+                window_size=window_size)
+        elif window_type == 'sliding':
+            graph_creator = GraphFromSlidingWindowCreator(
+                logs=logs,
+                include_last=include_last,
+                window_size=window_size,
+                window_slide=window_slide
+            )
+        else:
+            graph_creator = GraphFromSessionWindowCreator(
+                logs=logs,
+                include_last=include_last
+            )
 
-        windows_df['event_ids'] = logs.groupby('session_id')['event_id'].transform(lambda x : ','.join(x))
-
-        print(windows_df.head())
-
-        result = []
-        for index, row in windows_df.iterrows():
-            # Hack fix, think of a better one later
-            if pd.isnull(row['event_ids']):
-                r = []
-            else:
-                r = row['event_ids'].split(',')
-
-            result.append({
-                'session_id': row['session_id'],
-                'graph_dict': create_graph_as_dict(event_ids=r, include_last=include_last)
-            })
-
-        return result
-
-
-def get_events_ids_for_window(logs_df, window):
-    return ",".join(list(logs_df[
-                             (logs_df['timestamp'] >= window['start'])
-                             & (logs_df['timestamp'] < window['end'])
-                             ]['event_id']))
+        return graph_creator.create_graphs()

@@ -157,6 +157,14 @@ def get_experiments():
     return response
 
 
+@app.route("/experiments/delete", methods=['DELETE'])
+def delete_experiment():
+    id = request.args.get('experimentId', type=int)
+    Experiment.query.filter_by(id=id).delete()
+    db.session.commit()
+    return jsonify("All good!")
+
+
 @app.route('/experiment/windows', methods=['GET'])
 def get_windows_list():
     experiment_id = request.args.get('experimentId', default=1, type=int)
@@ -168,9 +176,13 @@ def get_windows_list():
     for folder in os.listdir(f'./experiments/{experiment_id}'):
         if folder != 'results.json':
             list_of_windows.append(folder)
+    dataset_file = open(f'./experiments/{experiment_id}/results.json')
+    dataset_content = "".join(dataset_file.readlines())
+    dataset_file.close()
     return jsonify({
         "windows": list_of_windows,
-        "type": "session" if window_type == "session" else "time"
+        "type": "session" if window_type == "session" else "time",
+        "dataset": dataset_content
     })
 
 

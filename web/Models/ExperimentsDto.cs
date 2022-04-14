@@ -21,5 +21,7 @@ public class ExperimentsDto
     public DateTimeOffset created_at { get; set; }
     
     public DateTimeOffset last_modified_at { get; set; }
+
+    public string status { get; set; }
     
 }

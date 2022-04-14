@@ -2,12 +2,18 @@
 @inject HttpClient Http
 @inject NavigationManager _navigationManager
 @using web.Models
+@using System.Text
+@inject IJSRuntime JS
+@using System.IO
 
 <h3>List of windows for experiment with ID: @experimentId</h3>
 
 @* TODO sort the windows *@
 @if (_windows!.windows.Any())
 {
+    <MudButton Variant="Variant.Filled" Color="Color.Success" OnClick="DownloadFileFromStream">
+        Download full dataset
+    </MudButton>
     <MudTable Items="_windows?.windows">
         <HeaderContent>
             @if (_windows!.type.Equals("session"))
@@ -41,19 +47,34 @@ else
 @code {
 
     Windows? _windows = new();
+
     [Parameter]
     public int experimentId { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
-
         _windows = await Http.GetFromJsonAsync<Windows>("/experiment/windows?experimentId=" + Convert.ToInt32(experimentId));
-
     }
 
     private void RouteToWindowVisualization(string window)
     {
         _navigationManager.NavigateTo($"/graph_visualization/{experimentId}/{window}/display");
+    }
+
+    private Stream GetFileStream()
+    {
+        var fileStream = new MemoryStream(Encoding.UTF8.GetBytes(_windows!.dataset));
+        return fileStream;
+    }
+    
+    private async Task DownloadFileFromStream()
+    {
+        var fileStream = GetFileStream();
+        var fileName = $"experiment_{experimentId}.json";
+
+        using var streamRef = new DotNetStreamReference(stream: fileStream);
+
+        await JS.InvokeVoidAsync("downloadFileFromStream", fileName, streamRef);
     }
 
 }
